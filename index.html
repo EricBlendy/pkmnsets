@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japanese Pokémon Set Guessing Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #1f2937; /* Dark theme background */
+            color: #f9fafb; /* Light text for dark theme */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+            padding: 10px;
+        }
+
+       .container {
+            background-color: #374151; /* Dark theme container */
+            padding: 20px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        header h1 {
+            color: #ef4444; /* Pokémon Red on dark */
+            border-bottom: 3px solid #60a5fa; /* Pokémon Blue on dark */
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        #main-menu p {
+            max-width: 450px;
+            margin: 20px auto;
+            line-height: 1.6;
+        }
+        
+        #main-menu .action-button-container {
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        #status-bar {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #4b5563; /* Darker border */
+            padding-bottom: 10px;
+        }
+
+        #question-container p {
+            margin: 10px 0;
+        }
+
+        #question-text {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #60a5fa; /* Pokémon Blue on dark */
+            margin: 20px 0;
+            word-wrap: break-word;
+        }
+
+        #options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 1em;
+            cursor: pointer;
+            border: 2px solid #60a5fa;
+            background-color: #4b5563;
+            color: #f9fafb;
+            border-radius: 8px;
+            transition: background-color 0.2s, color 0.2s;
+            font-weight: bold;
+            min-height: 60px; /* Ensure buttons have a consistent height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #60a5fa;
+            color: #1f2937;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+            background-color: #4b5563;
+            color: #9ca3af;
+        }
+
+        .action-button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        #new-game-btn, #play-again-btn, #next-question-btn, #master-mode-btn, #options-btn, #back-to-main-menu-btn {
+            background-color: #f59e0b; /* Pokémon Yellow on dark */
+            color: #1f2937;
+            border-color: #d97706;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        #master-mode-btn {
+             background-color: #ef4444; /* A different color for master mode */
+             border-color: #b91c1c;
+        }
+        
+        #options-btn {
+            background-color: #3b82f6;
+            border-color: #2563eb;
+        }
+        
+        #back-to-main-menu-btn {
+            background-color: #10b981;
+            border-color: #059669;
+        }
+
+        #new-game-btn:hover, #play-again-btn:hover, #next-question-btn:hover, #master-mode-btn:hover, #options-btn:hover, #back-to-main-menu-btn:hover {
+            color: #1f2937;
+        }
+        
+        #new-game-btn:hover, #play-again-btn:hover, #next-question-btn:hover, #master-mode-btn:hover {
+            background-color: #d97706;
+        }
+        
+        #master-mode-btn:hover {
+            background-color: #b91c1c;
+        }
+        
+        #options-btn:hover {
+            background-color: #2563eb;
+        }
+
+        #back-to-main-menu-btn:hover {
+            background-color: #059669;
+        }
+
+        #feedback {
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 50px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+       .hidden {
+            display: none;
+        }
+
+       .correct {
+            background-color: #10b981 !important; /* Green */
+            color: white !important;
+            border-color: #10b981 !important;
+        }
+
+       .incorrect {
+            background-color: #ef4444 !important; /* Red */
+            color: white !important;
+            border-color: #ef4444 !important;
+        }
+        
+        #era-options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .era-option {
+            background-color: #4b5563;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .era-option label {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        
+        .era-option input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 500px) {
+            #options-container {
+                grid-template-columns: 1fr;
+            }
+          .container {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+            #question-text {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Japanese Pokémon Set Guessing Game</h1>
+        </header>
+        <main>
+            <div id="main-menu">
+                <h2>Test Your TCG Knowledge!</h2>
+                <p>You will be given a Japanese set code. Your task is to select the correct set name from four options.</p>
+                <div class="action-button-container">
+                    <button id="new-game-btn">Start New Game (10 Questions)</button>
+                    <button id="master-mode-btn">Master Mode (All Sets)</button>
+                    <button id="options-btn">Options</button>
+                </div>
+            </div>
+
+            <div id="game-screen" class="hidden">
+                <div id="status-bar">
+                    <p id="score">Score: 0</p>
+                    <p id="question-counter">Question: 1 / 10</p>
+                </div>
+                <div id="question-container">
+                    <p>What is the name of the set with the code:</p>
+                    <p id="question-text"></p>
+                </div>
+                <div id="options-container">
+                </div>
+                <p id="feedback"></p>
+                <div class="action-button-container">
+                    <button id="next-question-btn" class="hidden">Next Question</button>
+                </div>
+            </div>
+
+            <div id="end-screen" class="hidden">
+                <h2>Game Over!</h2>
+                <p id="final-score"></p>
+                <div class="action-button-container">
+                    <button id="play-again-btn">Back to Main Menu</button>
+                </div>
+            </div>
+            
+            <div id="options-screen" class="hidden">
+                <h2>Options</h2>
+                <p>Select which eras to include in the game:</p>
+                <div id="era-options-container"></div>
+                <div class="action-button-container">
+                    <button id="back-to-main-menu-btn">Back to Menu</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- DATA LAYER ---
+        const japaneseSets = [
+            { code: "-", name: "Expansion Pack Vol. 1 (Base Set)", releaseDate: "1996-10-20", era: "Pokémon Card Game" },
+            { code: "-", name: "Expansion Pack Vol. 2: Pokémon Jungle", releaseDate: "1997-03-05", era: "Pokémon Card Game" },
+            { code: "-", name: "Expansion Pack Vol. 3: Mystery of the Fossils", releaseDate: "1997-06-21", era: "Pokémon Card Game" },
+            { code: "-", name: "Expansion Pack Vol. 4: Rocket Gang", releaseDate: "1997-11-21", era: "Pokémon Card Game" },
+            { code: "-", name: "Gym Expansion Vol. 1: Leaders' Stadium", releaseDate: "1998-04-26", era: "Pokémon Card Game" },
+            { code: "-", name: "Gym Expansion Vol. 2: Challenge from the Darkness", releaseDate: "1998-10-24", era: "Pokémon Card Game" },
+            { code: "-", name: "Expansion Pack Vol. 1: Gold, Silver, to a New World...", releaseDate: "1999-12-16", era: "★neo" },
+            { code: "-", name: "Expansion Pack Vol. 2: Crossing the Ruins...", releaseDate: "2000-07-07", era: "★neo" },
+            { code: "-", name: "Expansion Pack Vol. 3: Awakening Legend", releaseDate: "2000-11-23", era: "★neo" },
+            { code: "-", name: "Expansion Pack Vol. 4: Darkness, and to Light...", releaseDate: "2001-04-19", era: "★neo" },
+            { code: "-", name: "★web", releaseDate: "2001-10-20", era: "★web" },
+            { code: "-", name: "Basic Expansion Pack", releaseDate: "2001-12-01", era: "e" },
+            { code: "-", name: "The Town on No Map", releaseDate: "2002-03-08", era: "e" },
+            { code: "-", name: "Wind from the Sea", releaseDate: "2002-05-24", era: "e" },
+            { code: "-", name: "Split Earth", releaseDate: "2002-08-23", era: "e" },
+            { code: "-", name: "Mysterious Mountains", releaseDate: "2002-10-04", era: "e" },
+            { code: "-", name: "Expansion Pack Vol. 1 (Ruby & Sapphire)", releaseDate: "2003-01-31", era: "ADV" },
+            { code: "-", name: "Expansion Pack Vol. 2: Miracle of the Desert", releaseDate: "2003-04-18", era: "ADV" },
+            { code: "-", name: "Expansion Pack Vol. 3: Rulers of the Heavens", releaseDate: "2003-06-25", era: "ADV" },
+            { code: "-", name: "Enhanced Expansion Pack ex1: Magma VS Aqua: Two Ambitions", releaseDate: "2003-08-08", era: "ADV" },
+            { code: "-", name: "Expansion Pack Vol. 4: Undone Seal", releaseDate: "2003-10-24", era: "ADV" },
+            { code: "-", name: "Flight of Legends", releaseDate: "2004-01-16", era: "EX" },
+            { code: "-", name: "Clash of the Blue Sky", releaseDate: "2004-04-09", era: "EX" },
+            { code: "-", name: "Rocket Gang Strikes Back", releaseDate: "2004-07-01", era: "EX" },
+            { code: "-", name: "Golden Sky, Silvery Ocean", releaseDate: "2004-10-15", era: "EX" },
+            { code: "-", name: "Mirage Forest", releaseDate: "2005-01-28", era: "EX" },
+            { code: "-", name: "Holon Research Tower", releaseDate: "2005-03-19", era: "EX" },
+            { code: "-", name: "Holon Phantom", releaseDate: "2005-07-08", era: "EX" },
+            { code: "-", name: "Miracle Crystal", releaseDate: "2005-10-28", era: "EX" },
+            { code: "-", name: "Clash at the Summit", releaseDate: "2006-01-27", era: "EX" },
+            { code: "-", name: "World Champions Pack", releaseDate: "2006-06-29", era: "EX" },
+            { code: "DP1", name: "Space-Time Creation", releaseDate: "2006-11-30", era: "DP" },
+            { code: "DP2", name: "Secret of the Lakes", releaseDate: "2007-03-02", era: "DP" },
+            { code: "DP3", name: "Shining Darkness", releaseDate: "2007-07-05", era: "DP" },
+            { code: "DP4", name: "Moonlit Pursuit / Dawn Dash", releaseDate: "2007-11-09", era: "DP" },
+            { code: "DP5", name: "Cry from the Mysterious / Temple of Anger", releaseDate: "2008-03-14", era: "DP" },
+            { code: "DPs", name: "Intense Fight in the Destroyed Sky", releaseDate: "2008-07-10", era: "DP" },
+            { code: "Pt1", name: "Galactic's Conquest", releaseDate: "2008-10-10", era: "DPt" },
+            { code: "Pt2", name: "Bonds to the End of Time", releaseDate: "2008-12-26", era: "DPt" },
+            { code: "Pt3", name: "Pulse of the Frontier", releaseDate: "2009-03-06", era: "DPt" },
+            { code: "Pt4", name: "Arceus Advent", releaseDate: "2009-07-08", era: "DPt" },
+            { code: "L1", name: "HeartGold Collection / SoulSilver Collection", releaseDate: "2009-10-09", era: "LEGEND" },
+            { code: "L2", name: "Reviving Legends", releaseDate: "2010-02-11", era: "LEGEND" },
+            { code: "LL", name: "Lost Link", releaseDate: "2010-04-16", era: "LEGEND" },
+            { code: "L3", name: "Clash at the Summit", releaseDate: "2010-07-08", era: "LEGEND" },
+            { code: "BW1", name: "Black Collection / White Collection", releaseDate: "2010-12-17", era: "BW" },
+            { code: "BW2", name: "Red Collection", releaseDate: "2011-07-15", era: "BW" },
+            { code: "BW3", name: "Psycho Drive / Hail Blizzard", releaseDate: "2011-09-16", era: "BW" },
+            { code: "BW4", name: "Dark Rush", releaseDate: "2011-12-16", era: "BW" },
+            { code: "BW5", name: "Dragon Blast / Dragon Blade", releaseDate: "2012-03-16", era: "BW" },
+            { code: "BW6", name: "Freeze Bolt / Cold Flare", releaseDate: "2012-06-16", era: "BW" },
+            { code: "BW7", name: "Plasma Gale", releaseDate: "2012-09-14", era: "BW" },
+            { code: "BW8", name: "Spiral Force / Thunder Knuckle", releaseDate: "2012-12-14", era: "BW" },
+            { code: "BW9", name: "Megalo Cannon", releaseDate: "2013-03-15", era: "BW" },
+            { code: "SC", name: "Shiny Collection", releaseDate: "2013-02-01", era: "BW" },
+            { code: "EBB", name: "EX Battle Boost", releaseDate: "2013-07-13", era: "BW" },
+            { code: "XY1", name: "Collection X / Collection Y", releaseDate: "2013-12-13", era: "XY" },
+            { code: "XY2", name: "Wild Blaze", releaseDate: "2014-03-15", era: "XY" },
+            { code: "XY3", name: "Rising Fist", releaseDate: "2014-06-14", era: "XY" },
+            { code: "XY4", name: "Phantom Gate", releaseDate: "2014-09-13", era: "XY" },
+            { code: "XY5", name: "Gaia Volcano / Tidal Storm", releaseDate: "2014-12-13", era: "XY" },
+            { code: "XY6", name: "Emerald Break", releaseDate: "2015-03-14", era: "XY" },
+            { code: "XY7", name: "Bandit Ring", releaseDate: "2015-06-20", era: "XY" },
+            { code: "XY8", name: "Red Flash / Blue Impact", releaseDate: "2015-09-26", era: "XY" },
+            { code: "XY9", name: "Rage of the Heavens", releaseDate: "2015-12-11", era: "XY" },
+            { code: "XY10", name: "Awakening Psychic King", releaseDate: "2016-03-18", era: "XY" },
+            { code: "XY11", name: "Explosive Fighter / Cruel Traitor", releaseDate: "2016-06-17", era: "XY" },
+            { code: "CP1", name: "Magma Gang VS Aqua Gang: Double Crisis", releaseDate: "2015-01-31", era: "XY" },
+            { code: "CP2", name: "Legendary Shine Collection", releaseDate: "2015-07-18", era: "XY" },
+            { code: "CP3", name: "PokéKyun Collection", releaseDate: "2016-01-29", era: "XY" },
+            { code: "CP4", name: "Premium Champion Pack", releaseDate: "2016-04-16", era: "XY" },
+            { code: "CP5", name: "Mythical & Legendary Dream Shine Collection", releaseDate: "2016-07-16", era: "XY" },
+            { code: "CP6", name: "Expansion Pack 20th Anniversary", releaseDate: "2016-09-16", era: "XY" },
+            { code: "HP", name: "The Best of XY", releaseDate: "2016-12-09", era: "XY" },
+            { code: "SM1S", name: "Collection Sun", releaseDate: "2016-12-09", era: "Sun & Moon" },
+            { code: "SM1M", name: "Collection Moon", releaseDate: "2016-12-09", era: "Sun & Moon" },
+            { code: "SM1+", name: "Enhanced Expansion Pack: Sun & Moon", releaseDate: "2017-01-27", era: "Sun & Moon" },
+            { code: "SM2K", name: "Islands Awaiting You", releaseDate: "2017-03-17", era: "Sun & Moon" },
+            { code: "SM2L", name: "Alolan Moonlight", releaseDate: "2017-03-17", era: "Sun & Moon" },
+            { code: "SM2+", name: "Facing a New Trial", releaseDate: "2017-04-21", era: "Sun & Moon" },
+            { code: "SM3H", name: "Did You See the Fighting Rainbow?", releaseDate: "2017-06-16", era: "Sun & Moon" },
+            { code: "SM3N", name: "The Darkness-Consuming Light", releaseDate: "2017-06-16", era: "Sun & Moon" },
+            { code: "SM3+", name: "Shining Legends", releaseDate: "2017-07-15", era: "Sun & Moon" },
+            { code: "SM4S", name: "Awakened Heroes", releaseDate: "2017-09-15", era: "Sun & Moon" },
+            { code: "SM4A", name: "Super-Dimensional Beasts", releaseDate: "2017-09-15", era: "Sun & Moon" },
+            { code: "SM4+", name: "GX Battle Boost", releaseDate: "2017-10-20", era: "Sun & Moon" },
+            { code: "SM5S", name: "Ultra Sun", releaseDate: "2017-12-08", era: "Sun & Moon" },
+            { code: "SM5M", name: "Ultra Moon", releaseDate: "2017-12-08", era: "Sun & Moon" },
+            { code: "SM5+", name: "Ultra Force", releaseDate: "2018-01-19", era: "Sun & Moon" },
+            { code: "SM6", name: "Forbidden Light", releaseDate: "2018-03-02", era: "Sun & Moon" },
+            { code: "SM6a", name: "Dragon Storm", releaseDate: "2018-04-06", era: "Sun & Moon" },
+            { code: "SM6b", name: "Champion Road", releaseDate: "2018-04-06", era: "Sun & Moon" },
+            { code: "SM7", name: "Charisma of the Wrecked Sky", releaseDate: "2018-06-01", era: "Sun & Moon" },
+            { code: "SM7a", name: "Thunderclap Spark", releaseDate: "2018-07-06", era: "Sun & Moon" },
+            { code: "SM7b", name: "Fairy Rise", releaseDate: "2018-08-03", era: "Sun & Moon" },
+            { code: "SM8", name: "Super-Burst Impact", releaseDate: "2018-09-07", era: "Sun & Moon" },
+            { code: "SM8a", name: "Dark Order", releaseDate: "2018-10-05", era: "Sun & Moon" },
+            { code: "SM8b", name: "GX Ultra Shiny", releaseDate: "2018-11-02", era: "Sun & Moon" },
+            { code: "SM9", name: "Tag Bolt", releaseDate: "2018-12-07", era: "Sun & Moon" },
+            { code: "SM9a", name: "Night Unison", releaseDate: "2019-01-11", era: "Sun & Moon" },
+            { code: "SM9b", name: "Full Metal Wall", releaseDate: "2019-03-01", era: "Sun & Moon" },
+            { code: "SM10", name: "Double Blaze", releaseDate: "2019-04-05", era: "Sun & Moon" },
+            { code: "SM10a", "name": "GG End", releaseDate: "2019-04-26", era: "Sun & Moon" },
+            { code: "SM10b", name: "Sky Legend", releaseDate: "2019-05-31", era: "Sun & Moon" },
+            { code: "SM11", name: "Miracle Twin", releaseDate: "2019-07-05", era: "Sun & Moon" },
+            { code: "SM11a", name: "Remix Bout", releaseDate: "2019-08-02", era: "Sun & Moon" },
+            { code: "SM11b", name: "Dream League", releaseDate: "2019-09-05", era: "Sun & Moon" },
+            { code: "SM12", name: "Alter Genesis", releaseDate: "2019-10-04", era: "Sun & Moon" },
+            { code: "SM12a", name: "TAG TEAM GX Tag All Stars", releaseDate: "2019-11-01", era: "Sun & Moon" },
+            { code: "S1W", name: "Sword", releaseDate: "2019-12-06", era: "Sword & Shield" },
+            { code: "S1H", name: "Shield", releaseDate: "2019-12-06", era: "Sword & Shield" },
+            { code: "S1a", name: "VMAX Rising", releaseDate: "2020-02-07", era: "Sword & Shield" },
+            { code: "S2", name: "Rebellion Crash", releaseDate: "2020-03-06", era: "Sword & Shield" },
+            { code: "S2a", name: "Explosive Walker", releaseDate: "2020-04-24", era: "Sword & Shield" },
+            { code: "S3", name: "Infinity Zone", releaseDate: "2020-06-05", era: "Sword & Shield" },
+            { code: "S3a", name: "Legendary Heartbeat", releaseDate: "2020-07-10", era: "Sword & Shield" },
+            { code: "S4", name: "Astonishing Volt Tackle", releaseDate: "2020-09-18", era: "Sword & Shield" },
+            { code: "S4a", name: "Shiny Star V", releaseDate: "2020-11-20", era: "Sword & Shield" },
+            { code: "S5I", name: "Single Strike Master", releaseDate: "2021-01-22", era: "Sword & Shield" },
+            { code: "S5R", name: "Rapid Strike Master", releaseDate: "2021-01-22", era: "Sword & Shield" },
+            { code: "S5a", name: "Matchless Fighters", releaseDate: "2021-03-19", era: "Sword & Shield" },
+            { code: "S6H", name: "Silver Lance", releaseDate: "2021-04-23", era: "Sword & Shield" },
+            { code: "S6K", name: "Jet-Black Spirit", releaseDate: "2021-04-23", era: "Sword & Shield" },
+            { code: "S6a", name: "Eevee Heroes", releaseDate: "2021-05-28", era: "Sword & Shield" },
+            { code: "S7R", name: "Blue Sky Stream", releaseDate: "2021-07-09", era: "Sword & Shield" },
+            { code: "S7D", name: "Skyscraping Perfection", releaseDate: "2021-07-09", era: "Sword & Shield" },
+            { code: "S8", name: "Fusion Arts", releaseDate: "2021-09-24", era: "Sword & Shield" },
+            { code: "S8a", name: "25th Anniversary Collection", releaseDate: "2021-10-22", era: "Sword & Shield" },
+            { code: "S8b", name: "VMAX Climax", releaseDate: "2021-12-03", era: "Sword & Shield" },
+            { code: "S9", name: "Star Birth", releaseDate: "2022-01-14", era: "Sword & Shield" },
+            { code: "S9a", name: "Battle Region", releaseDate: "2022-02-25", era: "Sword & Shield" },
+            { code: "S10D", name: "Time Gazer", releaseDate: "2022-04-08", era: "Sword & Shield" },
+            { code: "S10P", name: "Space Juggler", releaseDate: "2022-04-08", era: "Sword & Shield" },
+            { code: "S10a", name: "Dark Phantasma", releaseDate: "2022-05-13", era: "Sword & Shield" },
+            { code: "S10b", name: "Pokémon GO", releaseDate: "2022-06-17", era: "Sword & Shield" },
+            { code: "S11", name: "Lost Abyss", releaseDate: "2022-07-15", era: "Sword & Shield" },
+            { code: "S11a", name: "Incandescent Arcana", releaseDate: "2022-09-02", era: "Sword & Shield" },
+            { code: "S12", name: "Paradigm Trigger", releaseDate: "2022-10-21", era: "Sword & Shield" },
+            { code: "S12a", name: "VSTAR Universe", releaseDate: "2022-12-02", era: "Sword & Shield" },
+            { code: "SV1S", name: "Scarlet ex", releaseDate: "2023-01-20", era: "Scarlet & Violet" },
+            { code: "SV1V", name: "Violet ex", releaseDate: "2023-01-20", era: "Scarlet & Violet" },
+            { code: "SV1a", name: "Triplet Beat", releaseDate: "2023-03-10", era: "Scarlet & Violet" },
+            { code: "SV2D", name: "Clay Burst", releaseDate: "2023-04-14", era: "Scarlet & Violet" },
+            { code: "SV2P", name: "Snow Hazard", releaseDate: "2023-04-14", era: "Scarlet & Violet" },
+            { code: "SV2a", name: "151", releaseDate: "2023-06-16", era: "Scarlet & Violet" },
+            { code: "SV3", name: "Ruler of the Black Flame", releaseDate: "2023-07-28", era: "Scarlet & Violet" },
+            { code: "SV3a", name: "Raging Surf", releaseDate: "2023-09-22", era: "Scarlet & Violet" },
+            { code: "SV4K", name: "Ancient Roar", releaseDate: "2023-10-27", era: "Scarlet & Violet" },
+            { code: "SV4M", name: "Future Flash", releaseDate: "2023-10-27", era: "Scarlet & Violet" },
+            { code: "SV4a", name: "Shiny Treasure ex", releaseDate: "2023-12-01", era: "Scarlet & Violet" },
+            { code: "SV5K", name: "Wild Force", releaseDate: "2024-01-26", era: "Scarlet & Violet" },
+            { code: "SV5M", name: "Cyber Judge", releaseDate: "2024-01-26", era: "Scarlet & Violet" },
+            { code: "SV5a", name: "Crimson Haze", releaseDate: "2024-03-22", era: "Scarlet & Violet" },
+            { code: "SV6", name: "Mask of Change", releaseDate: "2024-04-26", era: "Scarlet & Violet" },
+            { code: "SV6a", name: "Night Wanderer", releaseDate: "2024-06-07", era: "Scarlet & Violet" },
+            { code: "SV7", name: "Stellar Miracle", releaseDate: "2024-07-19", era: "Scarlet & Violet" },
+            { code: "SV7a", name: "Paradise Dragona", releaseDate: "2024-09-13", era: "Scarlet & Violet" },
+            { code: "SV8", name: "Super Electric Breaker", releaseDate: "2024-10-18", era: "Scarlet & Violet" },
+            { code: "SV8a", name: "Terastal Fest ex", releaseDate: "2024-12-06", era: "Scarlet & Violet" },
+            { code: "SV9", name: "Battle Partners", releaseDate: "2025-01-24", era: "Scarlet & Violet" },
+            { code: "SV9a", name: "Hot Air Arena", releaseDate: "2025-03-14", era: "Scarlet & Violet" },
+            { code: "SV10", name: "The Glory of Team Rocket", releaseDate: "2025-04-18", era: "Scarlet & Violet" },
+            { code: "SV11B", name: "Black Bolt", releaseDate: "2025-06-06", era: "Scarlet & Violet" },
+            { code: "SV11W", "name": "White Flare", releaseDate: "2025-06-06", era: "Scarlet & Violet" },
+            { code: "M1L", name: "Mega Brave", releaseDate: "2025-08-01", era: "MEGA" },
+            { code: "M1S", name: "Mega Symphonia", releaseDate: "2025-08-01", era: "MEGA" }
+        ];
+
+        // --- DOM ELEMENTS ---
+        const mainMenu = document.getElementById('main-menu');
+        const gameScreen = document.getElementById('game-screen');
+        const endScreen = document.getElementById('end-screen');
+        const optionsScreen = document.getElementById('options-screen');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const masterModeBtn = document.getElementById('master-mode-btn');
+        const optionsBtn = document.getElementById('options-btn');
+        const playAgainBtn = document.getElementById('play-again-btn');
+        const backToMainMenuBtn = document.getElementById('back-to-main-menu-btn');
+        const scoreEl = document.getElementById('score');
+        const questionCounterEl = document.getElementById('question-counter');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const eraOptionsContainer = document.getElementById('era-options-container');
+        const feedbackEl = document.getElementById('feedback');
+        const nextQuestionBtn = document.getElementById('next-question-btn');
+        const finalScoreEl = document.getElementById('final-score');
+
+        // --- GAME STATE ---
+        let score = 0;
+        let currentQuestionIndex = 0;
+        let gameQuestions = [];
+        let totalQuestions = 0;
+        const QUESTIONS_PER_STANDARD_GAME = 10;
+        let enabledEras = new Set();
+
+        // --- EVENT LISTENERS ---
+        newGameBtn.addEventListener('click', () => startNewGame('standard'));
+        masterModeBtn.addEventListener('click', () => startNewGame('master'));
+        optionsBtn.addEventListener('click', showOptionsScreen);
+        playAgainBtn.addEventListener('click', showMainMenu);
+        backToMainMenuBtn.addEventListener('click', showMainMenu);
+        nextQuestionBtn.addEventListener('click', displayNextQuestion);
+
+        // --- FUNCTIONS ---
+        
+        /**
+         * Hides all screens and shows the main menu.
+         */
+        function showMainMenu() {
+            gameScreen.classList.add('hidden');
+            endScreen.classList.add('hidden');
+            optionsScreen.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+        }
+
+        /**
+         * Hides all screens and shows the options menu.
+         */
+        function showOptionsScreen() {
+            mainMenu.classList.add('hidden');
+            gameScreen.classList.add('hidden');
+            endScreen.classList.add('hidden');
+            optionsScreen.classList.remove('hidden');
+        }
+
+        /**
+         * Starts a new game run in the selected mode.
+         * @param {string} mode - The game mode ('standard' or 'master').
+         */
+        function startNewGame(mode) {
+            score = 0;
+            currentQuestionIndex = 0;
+            gameQuestions = generateGameQuestions(mode);
+            
+            if (gameQuestions.length === 0) {
+                alert("Please enable at least one era in the Options menu to start a game.");
+                return;
+            }
+
+            totalQuestions = gameQuestions.length;
+            
+            mainMenu.classList.add('hidden');
+            endScreen.classList.add('hidden');
+            optionsScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            
+            displayNextQuestion();
+        }
+
+        /**
+         * Creates a shuffled list of questions based on the game mode and enabled eras.
+         * @param {string} mode - The game mode ('standard' or 'master').
+         * @returns {Array} An array of unique set objects for the game round.
+         */
+        function generateGameQuestions(mode) {
+            // Filter sets based on enabled eras and non-ambiguous codes.
+            const playableSets = japaneseSets.filter(set => set.code !== "-" && enabledEras.has(set.era));
+            
+            if (playableSets.length === 0) {
+                return []; // Return empty if no sets are available to play with.
+            }
+
+            const numberOfQuestions = mode === 'master' ? playableSets.length : Math.min(QUESTIONS_PER_STANDARD_GAME, playableSets.length);
+
+            let questionList = playableSets.sort(() => 0.5 - Math.random());
+
+            for (let i = 1; i < questionList.length; i++) {
+                const currentEra = questionList[i].era;
+                const previousEra = questionList[i - 1].era;
+
+                if (currentEra === previousEra) {
+                    const shouldAttemptSwap = Math.random() > 0.1;
+
+                    if (shouldAttemptSwap) {
+                        let swapIndex = -1;
+                        for (let j = i + 1; j < questionList.length; j++) {
+                            if (questionList[j].era !== currentEra) {
+                                swapIndex = j;
+                                break;
+                            }
+                        }
+                        if (swapIndex !== -1) {
+                            [questionList[i], questionList[swapIndex]] = [questionList[swapIndex], questionList[i]];
+                        }
+                    }
+                }
+            }
+            
+            if (mode === 'standard') {
+                return questionList.slice(0, numberOfQuestions);
+            } else {
+                return questionList;
+            }
+        }
+
+        /**
+         * Displays the next question or ends the game if all questions are answered.
+         */
+        function displayNextQuestion() {
+            if (currentQuestionIndex >= totalQuestions) {
+                endGame();
+                return;
+            }
+
+            resetQuestionState();
+            const currentSet = gameQuestions[currentQuestionIndex];
+            
+            scoreEl.textContent = `Score: ${score}`;
+            questionCounterEl.textContent = `Question: ${currentQuestionIndex + 1} / ${totalQuestions}`;
+            questionTextEl.textContent = currentSet.code;
+
+            generateAnswerOptions(currentSet);
+        }
+
+        /**
+         * Generates 4 answer options, including the correct one, and displays them as buttons.
+         * @param {object} correctSet - The set object that is the correct answer.
+         */
+        function generateAnswerOptions(correctSet) {
+            let wrongOptions = [];
+            const neededWrongOptions = 3;
+
+            const partnerSet = japaneseSets.find(set => 
+                set.releaseDate === correctSet.releaseDate && set.name !== correctSet.name
+            );
+
+            if (partnerSet) {
+                wrongOptions.push(partnerSet);
+            }
+
+            const correctIndex = japaneseSets.findIndex(set => set.name === correctSet.name);
+            const windowSize = 15;
+            const startIndex = Math.max(0, correctIndex - windowSize);
+            const endIndex = Math.min(japaneseSets.length, correctIndex + windowSize + 1);
+            
+            const existingNames = [correctSet.name, ...wrongOptions.map(o => o.name)];
+            let potentialWrongAnswers = japaneseSets.slice(startIndex, endIndex)
+                .filter(set => !existingNames.includes(set.name));
+
+            potentialWrongAnswers.sort(() => 0.5 - Math.random());
+
+            const remainingNeededFromPool = neededWrongOptions - wrongOptions.length;
+            if (remainingNeededFromPool > 0) {
+                wrongOptions.push(...potentialWrongAnswers.slice(0, remainingNeededFromPool));
+            }
+
+            if (wrongOptions.length < neededWrongOptions) {
+                const allExistingNames = [correctSet.name, ...wrongOptions.map(o => o.name)];
+                const fallbackAnswers = japaneseSets.filter(set => !allExistingNames.includes(set.name));
+                fallbackAnswers.sort(() => 0.5 - Math.random());
+                const finalNeeded = neededWrongOptions - wrongOptions.length;
+                wrongOptions.push(...fallbackAnswers.slice(0, finalNeeded));
+            }
+
+            const finalOptions = [correctSet, ...wrongOptions];
+            finalOptions.sort(() => 0.5 - Math.random());
+
+            optionsContainer.innerHTML = '';
+            finalOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option.name;
+                button.addEventListener('click', () => checkAnswer(button, option.name, correctSet.name));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        /**
+         * Checks if the selected answer is correct, provides feedback, and updates the score.
+         * @param {HTMLButtonElement} selectedButton - The button the user clicked.
+         * @param {string} selectedName - The name of the set on the selected button.
+         * @param {string} correctName - The correct set name for the current question.
+         */
+        function checkAnswer(selectedButton, selectedName, correctName) {
+            const buttons = optionsContainer.querySelectorAll('button');
+            buttons.forEach(button => button.disabled = true);
+
+            if (selectedName === correctName) {
+                score++;
+                feedbackEl.textContent = 'Correct!';
+                feedbackEl.style.color = '#34d399';
+                selectedButton.classList.add('correct');
+            } else {
+                feedbackEl.innerHTML = `Wrong! The correct answer was:<br>${correctName}`;
+                feedbackEl.style.color = '#f87171';
+                selectedButton.classList.add('incorrect');
+                buttons.forEach(button => {
+                    if (button.textContent === correctName) {
+                        button.classList.add('correct');
+                    }
+                });
+            }
+            
+            scoreEl.textContent = `Score: ${score}`;
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < totalQuestions) {
+                nextQuestionBtn.classList.remove('hidden');
+            } else {
+                setTimeout(endGame, 2500);
+            }
+        }
+
+        /**
+         * Clears the options and feedback from the previous question.
+         */
+        function resetQuestionState() {
+            optionsContainer.innerHTML = '';
+            feedbackEl.textContent = '';
+            nextQuestionBtn.classList.add('hidden');
+        }
+
+        /**
+         * Displays the end screen with the final score and percentage.
+         */
+        function endGame() {
+            gameScreen.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+            
+            const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+            finalScoreEl.innerHTML = `Your final score is ${score} out of ${totalQuestions}!<br>That's ${percentage}%!`;
+        }
+
+        /**
+         * Populates the options screen with checkboxes for each era.
+         * This version filters out eras that contain non-coded sets.
+         */
+        function populateOptionsScreen() {
+            const allEras = [...new Set(japaneseSets.map(set => set.era))];
+            
+            // Filter to only include eras where all sets have a proper code (not "-").
+            const selectableEras = allEras.filter(era => {
+                const setsInEra = japaneseSets.filter(set => set.era === era);
+                return !setsInEra.some(set => set.code === "-");
+            });
+
+            eraOptionsContainer.innerHTML = ''; // Clear existing options
+            enabledEras.clear(); // Reset the enabled eras
+            
+            selectableEras.forEach(era => {
+                enabledEras.add(era); // Enable selectable eras by default
+                
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'era-option';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `era-${era}`;
+                checkbox.value = era;
+                checkbox.checked = true;
+                
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        enabledEras.add(era);
+                    } else {
+                        enabledEras.delete(era);
+                    }
+                    updateGameStartButtons();
+                });
+                
+                const label = document.createElement('label');
+                label.htmlFor = `era-${era}`;
+                label.textContent = era;
+                
+                optionDiv.appendChild(checkbox);
+                optionDiv.appendChild(label);
+                eraOptionsContainer.appendChild(optionDiv);
+            });
+            updateGameStartButtons();
+        }
+
+        /**
+         * Enables or disables the game start buttons based on whether any eras are selected.
+         */
+        function updateGameStartButtons() {
+            const atLeastOneEraSelected = enabledEras.size > 0;
+            newGameBtn.disabled = !atLeastOneEraSelected;
+            masterModeBtn.disabled = !atLeastOneEraSelected;
+        }
+
+        /**
+         * Initializes the entire application on load.
+         */
+        function initializeApp() {
+            populateOptionsScreen();
+            showMainMenu();
+        }
+
+        // --- INITIALIZE ---
+        initializeApp();
+    </script>
+</body>
+</html>
