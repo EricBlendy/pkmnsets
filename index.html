@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japanese Pokémon Set Guessing Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #1f2937; /* Dark theme background */
+            color: #f9fafb; /* Light text for dark theme */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+            padding: 10px;
+        }
+
+       .container {
+            background-color: #374151; /* Dark theme container */
+            padding: 20px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        header h1 {
+            color: #ef4444; /* Pokémon Red on dark */
+            border-bottom: 3px solid #60a5fa; /* Pokémon Blue on dark */
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        #main-menu p {
+            max-width: 450px;
+            margin: 20px auto;
+            line-height: 1.6;
+        }
+
+        #status-bar {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #4b5563; /* Darker border */
+            padding-bottom: 10px;
+        }
+
+        #question-container p {
+            margin: 10px 0;
+        }
+
+        #question-text {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #60a5fa; /* Pokémon Blue on dark */
+            margin: 20px 0;
+            word-wrap: break-word;
+        }
+
+        #options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 1em;
+            cursor: pointer;
+            border: 2px solid #60a5fa;
+            background-color: #4b5563;
+            color: #f9fafb;
+            border-radius: 8px;
+            transition: background-color 0.2s, color 0.2s;
+            font-weight: bold;
+            min-height: 60px; /* Ensure buttons have a consistent height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #60a5fa;
+            color: #1f2937;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .action-button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        #new-game-btn, #play-again-btn, #next-question-btn {
+            background-color: #f59e0b; /* Pokémon Yellow on dark */
+            color: #1f2937;
+            border-color: #d97706;
+            padding: 15px 30px;
+            font-size: 1.2em;
+        }
+
+        #new-game-btn:hover, #play-again-btn:hover, #next-question-btn:hover {
+            background-color: #d97706;
+            color: #1f2937;
+        }
+
+        #feedback {
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 50px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+       .hidden {
+            display: none;
+        }
+
+       .correct {
+            background-color: #10b981 !important; /* Green */
+            color: white !important;
+            border-color: #10b981 !important;
+        }
+
+       .incorrect {
+            background-color: #ef4444 !important; /* Red */
+            color: white !important;
+            border-color: #ef4444 !important;
+        }
+
+        @media (max-width: 500px) {
+            #options-container {
+                grid-template-columns: 1fr;
+            }
+          .container {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+            #question-text {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Japanese Pokémon Set Guessing Game</h1>
+        </header>
+        <main>
+            <div id="main-menu">
+                <h2>Test Your TCG Knowledge!</h2>
+                <p>You will be given a Japanese set code. Your task is to select the correct set name from four options. A game consists of 10 questions.</p>
+                <div class="action-button-container">
+                    <button id="new-game-btn">Start New Game</button>
+                </div>
+            </div>
+
+            <div id="game-screen" class="hidden">
+                <div id="status-bar">
+                    <p id="score">Score: 0</p>
+                    <p id="question-counter">Question: 1 / 10</p>
+                </div>
+                <div id="question-container">
+                    <p>What is the name of the set with the code:</p>
+                    <p id="question-text"></p>
+                </div>
+                <div id="options-container">
+                </div>
+                <p id="feedback"></p>
+                <div class="action-button-container">
+                    <button id="next-question-btn" class="hidden">Next Question</button>
+                </div>
+            </div>
+
+            <div id="end-screen" class="hidden">
+                <h2>Game Over!</h2>
+                <p id="final-score"></p>
+                <div class="action-button-container">
+                    <button id="play-again-btn">Play Again</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- DATA LAYER ---
+        // This is the master list of Japanese Pokémon TCG sets.
+        const japaneseSets = [
+            { code: "-", name: "Expansion Pack Vol. 1 (Base Set)" },
+            { code: "-", name: "Expansion Pack Vol. 2: Pokémon Jungle" },
+            { code: "-", name: "Expansion Pack Vol. 3: Mystery of the Fossils" },
+            { code: "-", name: "Expansion Pack Vol. 4: Rocket Gang" },
+            { code: "-", name: "Gym Expansion Vol. 1: Leaders' Stadium" },
+            { code: "-", name: "Gym Expansion Vol. 2: Challenge from the Darkness" },
+            { code: "-", name: "Expansion Pack Vol. 1: Gold, Silver, to a New World..." },
+            { code: "-", name: "Expansion Pack Vol. 2: Crossing the Ruins..." },
+            { code: "-", name: "Expansion Pack Vol. 3: Awakening Legend" },
+            { code: "-", name: "Expansion Pack Vol. 4: Darkness, and to Light..." },
+            { code: "-", name: "Pokémon Card★web" },
+            { code: "-", name: "Basic Expansion Pack" },
+            { code: "-", name: "The Town on No Map" },
+            { code: "-", name: "Wind from the Sea" },
+            { code: "-", name: "Split Earth" },
+            { code: "-", name: "Mysterious Mountains" },
+            { code: "-", name: "Expansion Pack Vol. 1 (Ruby & Sapphire)" },
+            { code: "-", name: "Expansion Pack Vol. 2: Miracle of the Desert" },
+            { code: "-", name: "Expansion Pack Vol. 3: Rulers of the Heavens" },
+            { code: "-", name: "Enhanced Expansion Pack ex1: Magma VS Aqua: Two Ambitions" },
+            { code: "-", name: "Expansion Pack Vol. 4: Undone Seal" },
+            { code: "-", name: "Flight of Legends" },
+            { code: "-", name: "Clash of the Blue Sky" },
+            { code: "-", name: "Rocket Gang Strikes Back" },
+            { code: "-", name: "Golden Sky, Silvery Ocean" },
+            { code: "-", name: "Mirage Forest" },
+            { code: "-", name: "Holon Research Tower" },
+            { code: "-", name: "Holon Phantom" },
+            { code: "-", name: "Miracle Crystal" },
+            { code: "-", name: "Clash at the Summit" },
+            { code: "-", name: "World Champions Pack" },
+            { code: "DP1", name: "Space-Time Creation" },
+            { code: "DP2", name: "Secret of the Lakes" },
+            { code: "DP3", name: "Shining Darkness" },
+            { code: "DP4", name: "Moonlit Pursuit / Dawn Dash" },
+            { code: "DP5", name: "Cry from the Mysterious / Temple of Anger" },
+            { code: "DPs", name: "Intense Fight in the Destroyed Sky" },
+            { code: "Pt1", name: "Galactic's Conquest" },
+            { code: "Pt2", name: "Bonds to the End of Time" },
+            { code: "Pt3", name: "Pulse of the Frontier" },
+            { code: "Pt4", name: "Arceus Advent" },
+            { code: "L1", name: "HeartGold Collection / SoulSilver Collection" },
+            { code: "L2", name: "Reviving Legends" },
+            { code: "LL", name: "Lost Link" },
+            { code: "L3", name: "Clash at the Summit" },
+            { code: "BW1", name: "Black Collection / White Collection" },
+            { code: "BW2", name: "Red Collection" },
+            { code: "BW3", name: "Psycho Drive / Hail Blizzard" },
+            { code: "BW4", name: "Dark Rush" },
+            { code: "BW5", name: "Dragon Blast / Dragon Blade" },
+            { code: "BW6", name: "Freeze Bolt / Cold Flare" },
+            { code: "BW7", name: "Plasma Gale" },
+            { code: "BW8", name: "Spiral Force / Thunder Knuckle" },
+            { code: "BW9", name: "Megalo Cannon" },
+            { code: "SC", name: "Shiny Collection" },
+            { code: "EBB", name: "EX Battle Boost" },
+            { code: "XY1", name: "Collection X / Collection Y" },
+            { code: "XY2", name: "Wild Blaze" },
+            { code: "XY3", name: "Rising Fist" },
+            { code: "XY4", name: "Phantom Gate" },
+            { code: "XY5", name: "Gaia Volcano / Tidal Storm" },
+            { code: "XY6", name: "Emerald Break" },
+            { code: "XY7", name: "Bandit Ring" },
+            { code: "XY8", name: "Red Flash / Blue Impact" },
+            { code: "XY9", name: "Rage of the Heavens" },
+            { code: "XY10", name: "Awakening Psychic King" },
+            { code: "XY11", name: "Explosive Fighter / Cruel Traitor" },
+            { code: "CP1", name: "Magma Gang VS Aqua Gang: Double Crisis" },
+            { code: "CP2", name: "Legendary Shine Collection" },
+            { code: "CP3", name: "PokéKyun Collection" },
+            { code: "CP4", name: "Premium Champion Pack" },
+            { code: "CP5", name: "Mythical & Legendary Dream Shine Collection" },
+            { code: "CP6", name: "Expansion Pack 20th Anniversary" },
+            { code: "HP", name: "The Best of XY" },
+            { code: "SM1S", name: "Collection Sun" },
+            { code: "SM1M", name: "Collection Moon" },
+            { code: "SM1+", name: "Enhanced Expansion Pack: Sun & Moon" },
+            { code: "SM2K", name: "Islands Awaiting You" },
+            { code: "SM2L", name: "Alolan Moonlight" },
+            { code: "SM2+", name: "Facing a New Trial" },
+            { code: "SM3H", name: "Did You See the Fighting Rainbow?" },
+            { code: "SM3N", name: "The Darkness-Consuming Light" },
+            { code: "SM3+", name: "Shining Legends" },
+            { code: "SM4S", name: "Awakened Heroes" },
+            { code: "SM4A", name: "Super-Dimensional Beasts" },
+            { code: "SM4+", name: "GX Battle Boost" },
+            { code: "SM5S", name: "Ultra Sun" },
+            { code: "SM5M", name: "Ultra Moon" },
+            { code: "SM5+", name: "Ultra Force" },
+            { code: "SM6", name: "Forbidden Light" },
+            { code: "SM6a", name: "Dragon Storm" },
+            { code: "SM6b", name: "Champion Road" },
+            { code: "SM7", name: "Charisma of the Wrecked Sky" },
+            { code: "SM7a", name: "Thunderclap Spark" },
+            { code: "SM7b", name: "Fairy Rise" },
+            { code: "SM8", name: "Super-Burst Impact" },
+            { code: "SM8a", name: "Dark Order" },
+            { code: "SM8b", name: "GX Ultra Shiny" },
+            { code: "SM9", name: "Tag Bolt" },
+            { code: "SM9a", name: "Night Unison" },
+            { code: "SM9b", name: "Full Metal Wall" },
+            { code: "SM10", name: "Double Blaze" },
+            { code: "SM10a", "name": "GG End" },
+            { code: "SM10b", name: "Sky Legend" },
+            { code: "SM11", name: "Miracle Twin" },
+            { code: "SM11a", name: "Remix Bout" },
+            { code: "SM11b", name: "Dream League" },
+            { code: "SM12", name: "Alter Genesis" },
+            { code: "SM12a", name: "TAG TEAM GX Tag All Stars" },
+            { code: "S1W", name: "Sword" },
+            { code: "S1H", name: "Shield" },
+            { code: "S1a", name: "VMAX Rising" },
+            { code: "S2", name: "Rebellion Crash" },
+            { code: "S2a", name: "Explosive Walker" },
+            { code: "S3", name: "Infinity Zone" },
+            { code: "S3a", name: "Legendary Heartbeat" },
+            { code: "S4", name: "Astonishing Volt Tackle" },
+            { code: "S4a", name: "Shiny Star V" },
+            { code: "S5I", name: "Single Strike Master" },
+            { code: "S5R", name: "Rapid Strike Master" },
+            { code: "S5a", name: "Matchless Fighters" },
+            { code: "S6H", name: "Silver Lance" },
+            { code: "S6K", name: "Jet-Black Spirit" },
+            { code: "S6a", name: "Eevee Heroes" },
+            { code: "S7R", name: "Blue Sky Stream" },
+            { code: "S7D", name: "Skyscraping Perfection" },
+            { code: "S8", name: "Fusion Arts" },
+            { code: "S8a", name: "25th Anniversary Collection" },
+            { code: "S8b", name: "VMAX Climax" },
+            { code: "S9", name: "Star Birth" },
+            { code: "S9a", name: "Battle Region" },
+            { code: "S10D", name: "Time Gazer" },
+            { code: "S10P", name: "Space Juggler" },
+            { code: "S10a", name: "Dark Phantasma" },
+            { code: "S10b", name: "Pokémon GO" },
+            { code: "S11", name: "Lost Abyss" },
+            { code: "S11a", name: "Incandescent Arcana" },
+            { code: "S12", name: "Paradigm Trigger" },
+            { code: "S12a", name: "VSTAR Universe" },
+            { code: "SV1S", name: "Scarlet ex" },
+            { code: "SV1V", name: "Violet ex" },
+            { code: "SV1a", name: "Triplet Beat" },
+            { code: "SV2D", name: "Clay Burst" },
+            { code: "SV2P", name: "Snow Hazard" },
+            { code: "SV2a", name: "Pokémon Card 151" },
+            { code: "SV3", name: "Ruler of the Black Flame" },
+            { code: "SV3a", name: "Raging Surf" },
+            { code: "SV4K", name: "Ancient Roar" },
+            { code: "SV4M", name: "Future Flash" },
+            { code: "SV4a", name: "Shiny Treasure ex" },
+            { code: "SV5K", name: "Wild Force" },
+            { code: "SV5M", name: "Cyber Judge" },
+            { code: "SV5a", name: "Crimson Haze" },
+            { code: "SV6", name: "Mask of Change" },
+            { code: "SV6a", name: "Night Wanderer" },
+            { code: "SV7", name: "Stellar Miracle" },
+            { code: "SV7a", name: "Paradise Dragona" },
+            { code: "SV8", name: "Super Electric Breaker" },
+            { code: "SV8a", name: "Terastal Fest ex" },
+            { code: "SV9", name: "Battle Partners" },
+            { code: "SV9a", name: "Hot Air Arena" },
+            { code: "SV10", name: "The Glory of Team Rocket" },
+            { code: "SV11B", name: "Black Bolt" },
+            { code: "SV11W", "name": "White Flare" },
+            { code: "M1L", name: "Mega Brave" },
+            { code: "M1S", name: "Mega Symphonia" }
+        ];
+
+        // --- DOM ELEMENTS ---
+        const mainMenu = document.getElementById('main-menu');
+        const gameScreen = document.getElementById('game-screen');
+        const endScreen = document.getElementById('end-screen');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const playAgainBtn = document.getElementById('play-again-btn');
+        const scoreEl = document.getElementById('score');
+        const questionCounterEl = document.getElementById('question-counter');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackEl = document.getElementById('feedback');
+        const nextQuestionBtn = document.getElementById('next-question-btn');
+        const finalScoreEl = document.getElementById('final-score');
+
+        // --- GAME STATE ---
+        let score = 0;
+        let currentQuestionIndex = 0;
+        let gameQuestions = [];
+        const QUESTIONS_PER_GAME = 10;
+
+        // --- EVENT LISTENERS ---
+        newGameBtn.addEventListener('click', startNewGame);
+        playAgainBtn.addEventListener('click', startNewGame);
+        nextQuestionBtn.addEventListener('click', displayNextQuestion);
+
+        // --- FUNCTIONS ---
+        /**
+         * Sets the initial state of the UI, showing only the main menu.
+         */
+        function initializeGame() {
+            mainMenu.classList.remove('hidden');
+            gameScreen.classList.add('hidden');
+            endScreen.classList.add('hidden');
+        }
+
+        /**
+         * Starts a new game run. Resets score and generates a new set of questions.
+         */
+        function startNewGame() {
+            score = 0;
+            currentQuestionIndex = 0;
+            gameQuestions = generateGameQuestions();
+            
+            mainMenu.classList.add('hidden');
+            endScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            
+            displayNextQuestion();
+        }
+
+        /**
+         * Creates a shuffled list of 10 questions for the game.
+         * @returns {Array} An array of 10 unique set objects.
+         */
+        function generateGameQuestions() {
+            // Filter out sets with ambiguous codes to make the game fairer.
+            const playableSets = japaneseSets.filter(set => set.code !== "-");
+            const shuffled = playableSets.sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, QUESTIONS_PER_GAME);
+        }
+
+        /**
+         * Displays the next question or ends the game if all questions are answered.
+         */
+        function displayNextQuestion() {
+            if (currentQuestionIndex >= QUESTIONS_PER_GAME) {
+                endGame();
+                return;
+            }
+
+            resetQuestionState();
+            const currentSet = gameQuestions[currentQuestionIndex];
+            
+            scoreEl.textContent = `Score: ${score}`;
+            questionCounterEl.textContent = `Question: ${currentQuestionIndex + 1} / ${QUESTIONS_PER_GAME}`;
+            questionTextEl.textContent = currentSet.code;
+
+            generateAnswerOptions(currentSet);
+        }
+
+        /**
+         * Generates 4 answer options, including the correct one, and displays them as buttons.
+         * This version prioritizes showing options from a similar release era as the correct answer.
+         * @param {object} correctSet - The set object that is the correct answer.
+         */
+        function generateAnswerOptions(correctSet) {
+            // Get the index of the correct answer to find sets released around the same time.
+            const correctIndex = japaneseSets.findIndex(set => set.name === correctSet.name);
+
+            // Create a pool of potential wrong answers. Start with sets that are chronologically close.
+            const windowSize = 15; // Define how many sets before and after to consider "close".
+            const startIndex = Math.max(0, correctIndex - windowSize);
+            const endIndex = Math.min(japaneseSets.length, correctIndex + windowSize + 1);
+            
+            // Get all sets within the window, excluding the correct one.
+            let potentialWrongAnswers = japaneseSets.slice(startIndex, endIndex).filter(set => set.name !== correctSet.name);
+
+            // Shuffle this pool of nearby sets.
+            potentialWrongAnswers.sort(() => 0.5 - Math.random());
+
+            // We need 3 wrong answers. Take as many as we can from the "nearby" pool.
+            let wrongOptions = potentialWrongAnswers.slice(0, 3);
+
+            // If we still need more wrong answers (e.g., if the correct set is at the very start/end of the list),
+            // grab them randomly from the entire list, making sure they aren't duplicates.
+            if (wrongOptions.length < 3) {
+                // Create a list of all sets that are NOT the correct answer and NOT already in our options.
+                const existingNames = [correctSet.name, ...wrongOptions.map(o => o.name)];
+                const fallbackAnswers = japaneseSets.filter(set => !existingNames.includes(set.name));
+                
+                fallbackAnswers.sort(() => 0.5 - Math.random()); // Shuffle the fallback options.
+                
+                const needed = 3 - wrongOptions.length;
+                wrongOptions.push(...fallbackAnswers.slice(0, needed));
+            }
+
+            // Combine the correct answer with the three wrong ones.
+            const finalOptions = [correctSet, ...wrongOptions];
+            
+            // Shuffle the final four options to randomize their position on the screen.
+            finalOptions.sort(() => 0.5 - Math.random());
+
+            // Create the buttons for the UI.
+            optionsContainer.innerHTML = ''; // Clear old buttons.
+            finalOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option.name;
+                button.addEventListener('click', () => checkAnswer(button, option.name, correctSet.name));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        /**
+         * Checks if the selected answer is correct, provides feedback, and updates the score.
+         * @param {HTMLButtonElement} selectedButton - The button the user clicked.
+         * @param {string} selectedName - The name of the set on the selected button.
+         * @param {string} correctName - The correct set name for the current question.
+         */
+        function checkAnswer(selectedButton, selectedName, correctName) {
+            const buttons = optionsContainer.querySelectorAll('button');
+            buttons.forEach(button => button.disabled = true); // Disable all buttons
+
+            if (selectedName === correctName) {
+                score++;
+                feedbackEl.textContent = 'Correct!';
+                feedbackEl.style.color = '#34d399';
+                selectedButton.classList.add('correct');
+            } else {
+                feedbackEl.innerHTML = `Wrong! The correct answer was:<br>${correctName}`;
+                feedbackEl.style.color = '#f87171';
+                selectedButton.classList.add('incorrect');
+                // Highlight the correct answer for the user
+                buttons.forEach(button => {
+                    if (button.textContent === correctName) {
+                        button.classList.add('correct');
+                    }
+                });
+            }
+            
+            scoreEl.textContent = `Score: ${score}`;
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < QUESTIONS_PER_GAME) {
+                nextQuestionBtn.classList.remove('hidden');
+            } else {
+                // Automatically go to the end screen after a delay on the last question
+                setTimeout(endGame, 2500);
+            }
+        }
+
+        /**
+         * Clears the options and feedback from the previous question.
+         */
+        function resetQuestionState() {
+            optionsContainer.innerHTML = '';
+            feedbackEl.textContent = '';
+            nextQuestionBtn.classList.add('hidden');
+        }
+
+        /**
+         * Displays the end screen with the final score.
+         */
+        function endGame() {
+            gameScreen.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+            finalScoreEl.textContent = `Your final score is ${score} out of ${QUESTIONS_PER_GAME}!`;
+        }
+
+        // --- INITIALIZE ---
+        // Set up the main menu when the page loads.
+        initializeGame();
+    </script>
+</body>
+</html>
